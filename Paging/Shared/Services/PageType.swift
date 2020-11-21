@@ -6,6 +6,7 @@ enum PageType: CaseIterable, Identifiable, Hashable {
     case empty
     case single
     case paged
+    case stream
 
     var id: Self { self }
 }
@@ -18,6 +19,7 @@ extension PageType: CustomStringConvertible {
         case .empty: return "Empty"
         case .single: return "Single"
         case .paged: return "Paged"
+        case .stream: return "Stream"
         }
     }
 }

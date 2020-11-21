@@ -28,6 +28,17 @@ enum TypeService {
                 .setFailureType(to: Error.self)
                 .delay(for: .seconds(0.5), scheduler: DispatchQueue.main)
                 .eraseToAnyPublisher()
+        case .stream:
+            let timer = Timer.publish(every: 0.2, on: .main, in: .default)
+                .autoconnect()
+            return [Item].neuromancer.map { item in
+                PageResult(items: [item], hasMoreData: false)
+            }
+            .publisher
+            .zip(timer)
+            .map(\.0)
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
         }
     }
 }

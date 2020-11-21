@@ -16,7 +16,7 @@ struct TypeView: View {
                 case .hasMoreData:
                     loadingView
                         .onAppear(perform: viewModel.loadNext)
-                case .finished:
+                case .loadedContent:
                     if viewModel.items.isEmpty {
                         Text("Nothing to see here")
                     } else {
@@ -24,7 +24,8 @@ struct TypeView: View {
                     }
                 }
             }
-        }.frame(minWidth: 200, minHeight: 200)
+        }
+        .frame(minWidth: 200, minHeight: 200)
     }
 
     var itemsView: some View {

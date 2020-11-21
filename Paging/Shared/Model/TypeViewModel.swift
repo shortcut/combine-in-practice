@@ -22,7 +22,7 @@ class TypeViewModel: ObservableObject {
             }
             receiveValue: { [unowned self] result in
                 self.items += result.items
-                self.state = result.hasMoreData ? .hasMoreData : .finished
+                self.state = result.hasMoreData ? .hasMoreData : .loadedContent
             }
     }
 
@@ -35,8 +35,8 @@ class TypeViewModel: ObservableObject {
 extension TypeViewModel {
     enum CurrentState {
         case loading
+        case loadedContent
         case hasMoreData
         case error
-        case finished
     }
 }
