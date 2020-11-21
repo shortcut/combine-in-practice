@@ -15,7 +15,7 @@ struct TypeView: View {
                     loadingView
                 case .hasMoreData:
                     loadingView
-                        .onAppear(perform: viewModel.loadNext)
+                        .onAppear(perform: viewModel.load)
                 case .loadedContent:
                     if viewModel.items.isEmpty {
                         Text("Nothing to see here")
@@ -39,7 +39,7 @@ struct TypeView: View {
             Spacer()
             VStack(alignment: .center) {
                 Text("An error has occurred")
-                Button("Retry", action: viewModel.retry)
+                Button("Retry", action: viewModel.load)
             }
             Spacer()
         }
