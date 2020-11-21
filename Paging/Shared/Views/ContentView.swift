@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var type: PageType = .loading
+
     var body: some View {
         VStack {
             TypePicker(type: $type)

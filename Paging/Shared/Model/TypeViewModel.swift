@@ -13,10 +13,9 @@ class TypeViewModel: ObservableObject {
     func load() {
         // Create a shareable publisher
         let shareable = TypeService.info(type: type, page: page)
-            .map(Result<PageResult, Error>.success)
-            .catch { Just(Result<PageResult, Error>.failure($0)) }
+            .map(Result<Page<[Item]>, Error>.success)
+            .catch { Just(Result<Page<[Item]>, Error>.failure($0)) }
             .share()
-
 
         // Update the state
         shareable.map { result -> TypeViewModel.CurrentState in
@@ -31,7 +30,7 @@ class TypeViewModel: ObservableObject {
         // Assign new values to items
         shareable.map { result -> [Item] in
             switch result {
-            case .success(let page): return page.items
+            case .success(let page): return page.content
             case .failure: return []
             }
         }

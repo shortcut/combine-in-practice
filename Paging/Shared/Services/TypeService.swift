@@ -2,40 +2,42 @@ import Foundation
 import Combine
 
 enum TypeService {
-    static func info(type: PageType, page: Int) -> AnyPublisher<PageResult, Error> {
+    static func info(type: PageType, page: Int) -> AnyPublisher<Page<[Item]>, Error> {
         switch type {
         case .error:
-            return Fail<PageResult, Error>(error: OpaqueError.generic)
-                .delay(for: .seconds(0.5), scheduler: DispatchQueue.main)
+            return Fail<Page<[Item]>, Error>(error: TypeService.ServiceError.generic)
+                .delay(for: .seconds(0.5),
+                       scheduler: DispatchQueue.main)
                 .eraseToAnyPublisher()
         case .loading:
             return Empty(completeImmediately: false,
-                         outputType: PageResult.self,
+                         outputType: Page<[Item]>.self,
                          failureType: Error.self)
                 .eraseToAnyPublisher()
         case .empty:
-            return Just<PageResult>(PageResult(items: [], hasMoreData: false))
+            return Just(Page<[Item]>(content: [], hasMoreData: false))
                 .setFailureType(to: Error.self)
                 .delay(for: .seconds(0.5), scheduler: DispatchQueue.main)
                 .eraseToAnyPublisher()
         case .single:
-            return Just<PageResult>(.simple)
+            return Just(Page<[Item]>.simple)
                 .setFailureType(to: Error.self)
                 .delay(for: .seconds(0.5), scheduler: DispatchQueue.main)
                 .eraseToAnyPublisher()
         case .paged:
-            return Just<PageResult>(.paged(page: page))
+            return Just(Page<[Item]>.paged(page: page))
                 .setFailureType(to: Error.self)
                 .delay(for: .seconds(0.5), scheduler: DispatchQueue.main)
                 .eraseToAnyPublisher()
         case .stream:
-            let timer = Timer.publish(every: 0.2, on: .main, in: .default)
-                .autoconnect()
             return [Item].neuromancer.map { item in
-                PageResult(items: [item], hasMoreData: false)
+                Page(content: [item], hasMoreData: false)
             }
             .publisher
-            .zip(timer)
+            .zip(Timer.publish(every: 0.2,
+                               on: .main,
+                               in: .default)
+                    .autoconnect())
             .map(\.0)
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
@@ -43,17 +45,19 @@ enum TypeService {
     }
 }
 
-enum OpaqueError: Error {
-    case generic
+extension TypeService {
+    enum ServiceError: Error {
+        case generic
+    }
 }
 
 // MARK: - Data Mocking
-private extension PageResult {
-    static let simple = PageResult(items: .simple, hasMoreData: false)
-    static func paged(page: Int) -> PageResult {
+private extension Page where Content == [Item] {
+    static let simple = Page(content: .simple, hasMoreData: false)
+    static func paged(page: Int) -> Page<[Item]> {
         let tail = [Item].neuromancer.dropFirst(page * .pageSize)
-        return PageResult(items: Array(tail.prefix(.pageSize)),
-                          hasMoreData: tail.count > .pageSize)
+        return Page(content: Array(tail.prefix(.pageSize)),
+                    hasMoreData: tail.count > .pageSize)
     }
 }
 
