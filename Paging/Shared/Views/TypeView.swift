@@ -6,22 +6,20 @@ struct TypeView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading) {
+            LazyVStack(alignment: .center) {
                 itemsView
                 switch viewModel.state {
                 case .error:
                     errorView
                 case .loading:
-                    loadingView
+                    ProgressView()
                 case .hasMoreData:
-                    loadingView
+                    ProgressView()
                         .onAppear(perform: viewModel.load)
+                case .loadedContent where viewModel.items.isEmpty:
+                    Text("Nothing to see here")
                 case .loadedContent:
-                    if viewModel.items.isEmpty {
-                        Text("Nothing to see here")
-                    } else {
-                        EmptyView()
-                    }
+                    EmptyView()
                 }
             }
         }
@@ -32,24 +30,19 @@ struct TypeView: View {
         ForEach(viewModel.items) { item in
             Text(item.text)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     var errorView: some View {
-        HStack {
-            Spacer()
-            VStack(alignment: .center) {
-                Text("An error has occurred")
-                Button("Retry", action: viewModel.load)
-            }
-            Spacer()
+        VStack {
+            Text("An error has occurred")
+            Button("Retry", action: viewModel.load)
         }
     }
+}
 
-    var loadingView: some View {
-        HStack {
-            Spacer()
-            ProgressView()
-            Spacer()
-        }
+struct TypeView_Previews: PreviewProvider {
+    static var previews: some View {
+        TypeView(viewModel: TypeViewModel(type: .empty))
     }
 }
